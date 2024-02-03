@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User{
+  id Int @id @default(autoincrement()) 
+  userId String @unique
+  name String
+  email String @unique
+  products Product[] @relation("viewProducts")
+  sold soldProducts[] @relation("sold")
+  //bought boughtProducts[] @relation("bought")
+  question Questions[] @relation("question")
+  discussion Discussions[] @relation("owner")
+}
+
+model soldProducts{
+  id Int @id @default(autoincrement())
+  productName String?
+  price Float
+  soldTo User @relation("sold", fields: [sellerId], references: [id])
+  sellerId Int
+  
+}
+
+//Not for now 
+// model boughtProducts{
+//   id Int @id @default(autoincrement())
+//   productName String?
+//   price Float
+//   boughtTo User @relation("bought", fields: [buyerId], references: [id])
+//   buyerId Int
+// }
+
+model Product{
+  id Int @id @default(autoincrement())
+  type String
+  breed String
+  description String
+  productionPerDay String?
+  weight String
+  teethCount String
+  imgURL String
+  price Float
+  isInfected Boolean
+  infectedReason String
+  area String
+  district String
+  phoneNumber String
+  pincode Int
+  creator User @relation("viewProducts",fields: [creatorId], references: [id])
+  creatorId Int
+  createdAt DateTime @default(now())
+}
+
+model Questions{
+  id Int @id @default(autoincrement()) 
+  question String
+  creator User @relation("question", fields: [creatorId], references: [id])
+  creatorId Int
+  discussions Discussions[] @relation("answers")
+  creatorAt DateTime @default(now())
+}
+
+model Discussions{
+  id Int @id @default(autoincrement())
+  discussion Questions @relation("answers", fields: [discussionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  discussionId Int
+  answer String
+  createdAt DateTime @default(now())
+  creator User @relation("owner", fields: [creatorId], references: [id] )
+  creatorId Int 
+}
